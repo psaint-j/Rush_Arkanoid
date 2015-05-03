@@ -102,7 +102,6 @@ int main(void)
         double j;
         
         glfwGetCursorPos(window, &i , &j);
-        if (i >= 0 && i <= 1376)
         i = (i /(width/2)) - 1;
         j = (j /(height/2)) - 1;
         printf("%lf\n", i);

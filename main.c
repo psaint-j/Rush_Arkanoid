@@ -1,76 +1,129 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nbelkaid <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/05/02 04:28:41 by nbelkaid          #+#    #+#             */
+/*   Updated: 2015/05/02 04:28:41 by nbelkaid         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "glfw/usr/local/include/GLFW/glfw3.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "./include/Arkanoid.h"
 
-static void error_callback(int error, const char* description)
+void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
-	(void)error;
+    (void)error;
 }
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-	(void)scancode;
-	(void)mods;
+    (void)scancode;
+    (void)mods;
+}
+
+void        draw_rect(float x, float y, float width, float height)
+{
+
+        glBegin(GL_QUADS);
+        glColor3d(0.0, 0.8, 1.0);
+        glVertex2f(-width/2 + x, -height/2 + y);
+        glVertex2f(-width/2 + x, height/2 + y);
+        glVertex2f(width/2 + x, height/2 + y);
+        glVertex2f(width/2 + x, -height/2 + y);
+        glEnd();
 }
 
 int main(void)
 {
     GLFWwindow* window;
-    glfwSetErrorCallback(error_callback);
+
+    /* Initialize the library */
     if (!glfwInit())
-        exit(EXIT_FAILURE);
-    window = glfwCreateWindow(640, 480, "ARKANOID", NULL, NULL);
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(1376, 1032, "A R K A N O I D", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
-        exit(EXIT_FAILURE);
+        return -1;
     }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-    glfwSetKeyCallback(window, key_callback);
-	int i;
 
-	i = 0; 
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+    glfwSetErrorCallback(error_callback);
+    glfwSetKeyCallback(window, key_callback);
+
+    /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        /* Render here */
+
         float ratio;
         int width, height;
-        int state_right = glfwGetKey(window, GLFW_KEY_RIGHT);
-        int state_left = glfwGetKey(window, GLFW_KEY_LEFT);
         glfwGetFramebufferSize(window, &width, &height);
-		ratio = width / (float) height;
-		if (state_right == GLFW_PRESS)
-		{
-			glViewport(i, 0, width, height);
-			i = i + 5;
-		}
-		if (state_left == GLFW_PRESS)
-		{
-			glViewport(i, 0, width, height);
-			i = i - 5;
-		}
-		glClear(GL_COLOR_BUFFER_BIT);
+        ratio = width / (float) height;
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        glOrtho(-ratio, ratio, -1, 1, 1, -1);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        //glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-        glBegin(GL_TRUE);
-        //glColor3f(1.f, 0.f, 0.f);
-        glVertex3f(-0.6f, -0.4f, 0.f);
-        //glColor3f(0.f, 1.f, 0.f);
-        glVertex3f(0.6f, -0.4f, 0.f);
-        //glColor3f(0.f, 0.f, 1.f);
-        glVertex3f(0.f, 0.6f, 0.f);
+
+        float	rel;
+        int 	x;
+        int 	y;
+
+        rel	= ratio / 50;
+        x = 1;
+        y = 1;
+        while (x < 14)
+        {
+
+             while (y++ < 14)
+            {
+            	//usleep(1000);
+                draw_rect(-0.9f - 0.51f + ratio * x / (float)5, -0.9f + 1.0f + y/(float)15, 1 / ratio * (23/(float)100), 1/ratio * (6/(float)100));
+                
+            }
+            y = 1;
+            x++;
+        }
+        double i;
+        double j;
+        
+        glfwGetCursorPos(window, &i , &j);
+        if (i >= 0 && i <= 1376)
+        i = (i /(width/2)) - 1;
+        j = (j /(height/2)) - 1;
+        printf("%lf\n", i);
+        glColor3d(0.0, 0.8, 1.0);
+        glBegin(GL_POLYGON);
+        glVertex2d(i - 0.2, - 0.9);
+        glVertex2d( i + 0.2,- 0.9);
+        glVertex2d( i + 0.2,- 0.85);
+        glVertex2d(i - 0.2, - 0.85);
         glEnd();
+        //glFlush();
+       
+
+        /* Swap front and back buffers */
         glfwSwapBuffers(window);
+
+        /* Poll for and process events */
         glfwPollEvents();
     }
-    glfwDestroyWindow(window);
+
     glfwTerminate();
-    exit(EXIT_SUCCESS);
+    return 0;
 }
+
